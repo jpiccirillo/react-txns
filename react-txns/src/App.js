@@ -27,6 +27,134 @@ const proportions = {
     title: "Spending in Each Category",
 }
 
+const cats = {
+    10: {
+        title: "gym payment",
+        display: "Pay gym membership",
+        color: colors.sandy,
+        times: 0,
+        vendors: [
+            "Anytime Fitness"
+        ],
+        min: 50,
+        max: 50
+    },
+    11: {
+        title: "Alcohol and bars",
+        display: "Go to a bar",
+        color: colors.jam,
+        times: 0,
+        vendors: [
+            "Workhorse Bar",
+            "drink.well.",
+            "The Parlor",
+            "Weather Up"
+        ],
+        min: 5,
+        max: 50
+    },
+    32: {
+        title: "Groceries",
+        display: "Pick up groceries",
+        color: colors.olive,
+        times: 0,
+        vendors: [
+            "Fresh Plus Grocery",
+            "Trader Joe's",
+            "Whole Foods Great Hills Rd",
+            "Dierbergs"
+        ],
+        min: 10,
+        max: 80
+    },
+    12: {
+        title: "Coffee Shop",
+        display: "Grab a coffee",
+        color: colors.peach,
+        times: 0,
+        vendors: [
+            "Quacks 43rd St Bakery",
+            "Thunderbird Coffee",
+            "Epoch North Loop",
+            "Flightpath Coffeehouse",
+            "Dolce Vita",
+            "Monkey Nest Coffee"
+        ],
+        min: 1.25,
+        max: 15
+    },
+    13: {
+        title: "Gas / Fuel",
+        display: "Get gas",
+        color: colors.cadet,
+        times: 0,
+        vendors: [
+            "Shell 4429 Duval St",
+            "Texaco Austin 5301 N Lamar",
+            "Exxon",
+            "North Loop Food Store",
+            "Chevron Airport Blvd",
+            "Gulf Gas Station"
+        ],
+        min: 30,
+        max: 40
+    },
+    14: {
+        title: "Cellphone",
+        display: "Pay cellphone bill",
+        color: colors.plant,
+        times: 0,
+        vendors: [
+            "ATT Thanks for your Online Payment"
+        ],
+        min: 64,
+        max: 66
+    },
+    35: {
+        title: "Restaurants",
+        display: "Go out to eat",
+        color: colors.teal,
+        times: 0,
+        vendors: [
+            "Foreign & Domestic",
+            "East Side Pies",
+            "Phara's",
+            "Uchiko",
+            "Chipotle",
+            "Freebirds Airport Blvd",
+            "Biscuits and Groovy",
+            "Gordeaux's Donuts",
+            "Habesha Ethiopian Restaurant and Bar",
+            "Tyson's Tacos"
+        ],
+        min: 12,
+        max: 50
+    },
+    5: {
+        title: "Invest Money",
+        display: "Invest money",
+        color: colors.heather,
+        times: 0,
+        vendors:[
+            "Vanguard Investing",
+            "Discover Online Banking"
+        ],
+        min: 100,
+        max: 10000
+    },
+    20: {
+        title: "Income",
+        display: "Earn some income",
+        color: colors.blue,
+        times: 0,
+        vendors:[
+            "Freelancing",
+        ],
+        min: 100,
+        max: 10000
+    }
+}
+
 const Header = function(props) {
     return <div className='background'>
         <div className="titleHolder">
@@ -36,14 +164,13 @@ const Header = function(props) {
           </div>;
       }
 
+
 class ChartComponent extends Component {
     constructor(props) {
         super(props);
-        console.log(props)
         this.state = {
             properties: props,
         }
-    console.log(this.state)
     }
 
     render() {
@@ -57,13 +184,17 @@ class ChartComponent extends Component {
 }
 
 class App extends Component {
-    getTransaction(name, color, content) {
-        let styles = {
-            backgroundColor: color,
-            border: "solid 1px " +  color
-        };
-        var classString = "square_btn " + name;
-        return (<a href="#" style={styles} className={classString}>{content}</a>)
+    makeButtons() {
+        let total = [];
+        for (let c in cats) {
+            console.log(cats[c]);
+            var styles = {
+                backgroundColor: cats[c].color,
+                border: "solid 1px " +  cats[c].color
+            };
+            total.push(<a href="#" style={styles} className={"square_btn"}>{cats[c].display}</a>)
+        }
+        return (total)
     }
 
   render() {
@@ -78,14 +209,7 @@ class App extends Component {
           <div>
               <Header first="" second="Add a Transaction:"/>
               <div className="buttonHolder">
-                  {this.getTransaction("coffee", colors.peach, "Grab a coffee")}
-                  {this.getTransaction("bars", colors.jam, "Go out to a bar")}
-                  {this.getTransaction("gym", colors.sandy, "Pay gym membership")}
-                  {this.getTransaction("gas", colors.cadet, "Get gas")}
-                  {this.getTransaction("groceries", colors.olive, "Pick up groceries")}
-                  {this.getTransaction("restaurant", colors.teal, "Go out to eat")}
-                  {this.getTransaction("invest", colors.heather, "Invest money")}
-                  {this.getTransaction("cellphone", colors.plant, "Pay cellphone bill")}
+              {this.makeButtons()}
             </div>
           </div>
       </div>
@@ -105,61 +229,6 @@ class App extends Component {
     </>
     );
   }
-}
-
-const cats = {
-    10: {
-        title: "gym payment",
-        times: 0,
-        vendors: [
-            "Anytime Fitness"
-        ],
-        min: 50,
-        max: 50
-    },
-    32: {
-        title: "Groceries",
-        times: 0,
-        vendors: [
-            "Quack's 43rd St Bakery",
-            "Trader Joe's",
-            "Whole Foods",
-            "Dierbergs"
-        ],
-        min: 10,
-        max: 80
-    },
-    11: {
-        title: "credit card",
-        times: 0,
-        vendors: [
-            "Chase Thank You Payment",
-            "Target Payment"
-        ],
-        min: 10,
-        max: 1000
-    },
-    12: {
-        title: "coffee shop",
-        times: 0,
-        vendors: [
-            "Quacks",
-            "Thunderbird",
-            "Epoch North Loop"
-        ],
-        min: 1.25,
-        max: 15
-    },
-    5: {
-        title: "Invest Money",
-        times: 0,
-        vendors:[
-            "Vanguard Investing",
-            "Discover Online Banking"
-        ],
-        min: 100,
-        max: 10000
-    }
 }
 
 function range(min,max) {
