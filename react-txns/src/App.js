@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import logo from './logo.svg';
 import './App.css';
-import Chart, { LineChart, BarChart } from './components/Chart'
+import Chart, { LineChart, BarChart, BarExample } from './components/Chart'
 const colors = {
     jam: '#A40E4C',
     cadet: '#2C2C54',
@@ -32,6 +32,7 @@ const cats = {
         title: "gym payment",
         display: "Pay gym membership",
         color: colors.sandy,
+        button: false,
         times: 0,
         vendors: [
             "Anytime Fitness"
@@ -43,6 +44,7 @@ const cats = {
         title: "Alcohol and bars",
         display: "Go to a bar",
         color: colors.jam,
+        button: true,
         times: 0,
         vendors: [
             "Workhorse Bar",
@@ -57,6 +59,7 @@ const cats = {
         title: "Groceries",
         display: "Pick up groceries",
         color: colors.olive,
+        button: true,
         times: 0,
         vendors: [
             "Fresh Plus Grocery",
@@ -71,6 +74,7 @@ const cats = {
         title: "Coffee Shop",
         display: "Grab a coffee",
         color: colors.peach,
+        button: true,
         times: 0,
         vendors: [
             "Quacks 43rd St Bakery",
@@ -87,6 +91,7 @@ const cats = {
         title: "Gas / Fuel",
         display: "Get gas",
         color: colors.cadet,
+        button: true,
         times: 0,
         vendors: [
             "Shell 4429 Duval St",
@@ -103,6 +108,7 @@ const cats = {
         title: "Cellphone",
         display: "Pay cellphone bill",
         color: colors.plant,
+        button: false,
         times: 0,
         vendors: [
             "ATT Thanks for your Online Payment"
@@ -114,6 +120,7 @@ const cats = {
         title: "Restaurants",
         display: "Go out to eat",
         color: colors.teal,
+        button: true,
         times: 0,
         vendors: [
             "Foreign & Domestic",
@@ -134,6 +141,7 @@ const cats = {
         title: "Invest Money",
         display: "Invest money",
         color: colors.heather,
+        button: true,
         times: 0,
         vendors:[
             "Vanguard Investing",
@@ -142,13 +150,17 @@ const cats = {
         min: 100,
         max: 10000
     },
-    20: {
+    9: {
         title: "Income",
         display: "Earn some income",
         color: colors.blue,
+        button: true,
         times: 0,
         vendors:[
             "Freelancing",
+            "Car washes",
+            "Gave haircut",
+            "Tutored"
         ],
         min: 100,
         max: 10000
@@ -170,6 +182,7 @@ class ChartComponent extends Component {
         super(props);
         this.state = {
             properties: props,
+            chartData: props.chartData
         }
     }
 
@@ -177,24 +190,61 @@ class ChartComponent extends Component {
       return (
         <div>
           <Header first={this.props.config.leftOfTitle} second={this.props.config.title}/>
-          <LineChart/>
+          <LineChart chartData={this.state.chartData} />
         </div>
       );
     }
 }
 
 class App extends Component {
+
     makeButtons() {
         let total = [];
         for (let c in cats) {
-            console.log(cats[c]);
-            var styles = {
-                backgroundColor: cats[c].color,
-                border: "solid 1px " +  cats[c].color
-            };
-            total.push(<a href="#" style={styles} className={"square_btn"}>{cats[c].display}</a>)
+            // console.log(cats[c]);
+            if (cats[c].button) {
+                var styles = {
+                    backgroundColor: cats[c].color,
+                    border: "solid 1px " +  cats[c].color
+                };
+            total.push(<a href="#" style={styles} className={"square_btn"} key={c}>{cats[c].display}</a>)
+            }
         }
         return (total)
+    }
+
+    componentWillMount() {
+        this.getChartData();
+    }
+
+    getChartData() {
+        //ajax call here
+        this.setState({
+            chartData: {
+                labels: ["January", "February", "March", "April", "May", "June", "July"],
+                datasets: [{
+                    pointStyle: 'line',
+                    label: "Marilyn",
+                    borderColor: '#f87979',
+                    backgroundColor: 'rgba(0, 0, 0, 0)',
+                    data: [0, 10, 5, 2, 20, 30, 45],
+                },
+                {
+                    pointStyle: 'line',
+                    label: "Greg",
+                    borderColor: '#f73979',
+                    backgroundColor: 'rgba(0, 0, 0, 0)',
+                    data: [0, 2, 15, 5, 10, 3, 10],
+                },
+                {
+                    pointStyle: 'line',
+                    label: "Jeffrey",
+                    borderColor: '#f18979',
+                    backgroundColor: 'rgba(0, 0, 0, 0)',
+                    data: [0, 18, 15, 12, 120, 50, 35],
+                }]
+            }
+        })
     }
 
   render() {
@@ -203,7 +253,7 @@ class App extends Component {
     <Clock />
       <div className="grid-container-2">
           <div>
-              <ChartComponent config={ txnsGeneral }/>
+              <BarExample />
           </div>
 
           <div>
@@ -215,15 +265,16 @@ class App extends Component {
       </div>
       <div className="grid-container-3">
           <div>
-              <ChartComponent config={ netWorth }/>
+              <ChartComponent chartData={this.state.chartData} config={ netWorth }/>
           </div>
           <div>
-              <ChartComponent config={ proportions }/>
+          <ChartComponent chartData={this.state.chartData} config={txnsGeneral}/>
+
           </div>
       </div>
       <div className="grid-container-1">
           <div>
-              <ChartComponent config={ netWorth }/>
+              <ChartComponent chartData={this.state.chartData} config={ proportions }/>
           </div>
       </div>
     </>
@@ -258,35 +309,37 @@ function makeTransaction(type) {
 }
 
 class Clock extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-        category: decide()
-    };
-  }
+    constructor(props) {
+        super(props);
+        this.state = {
+            category: decide()
+        };
+    }
 
-  componentDidMount() {
-    var that = this;
-    this.timerID = setInterval( function() { return that.tick(); }, 1000 );
-  }
+    componentDidMount() {
+        var that = this;
+        this.timerID = setInterval(function() {
+            return that.tick();
+        }, 1000);
+    }
 
-  componentWillUnmount() {
-    clearInterval(this.timerID);
-  }
+    componentWillUnmount() {
+        clearInterval(this.timerID);
+    }
 
-  tick() {
-    this.setState({
-      category: decide()
-    });
-  }
+    tick() {
+        this.setState({
+            category: decide()
+        });
+    }
 
-  render() {
-    return (
-      <div>
-        <h5>It is { String(this.state.category) }.</h5>
-      </div>
-    );
-  }
+    render() {
+        return (
+          <div>
+            <h5>It is { String(this.state.category) }.</h5>
+          </div>
+        );
+    }
 }
 
 export default App;

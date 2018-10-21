@@ -1,3 +1,5 @@
+@import url('https://fonts.googleapis.com/css?family=Open+Sans');;
+
 :root {
     --jam: #A40E4C;
     --cadet: #2C2C54;
@@ -20,7 +22,7 @@
 }
 body {
     margin:5px;
-    font-family: 'Proxima Nova' ! important;
+    font-family: 'Open Sans' ! important;
 }
 .line-chart, .bar-chart {
     /*max-width: 700px;*/
