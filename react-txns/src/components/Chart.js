@@ -101,7 +101,7 @@ export class BarExample extends Chart {
 
   componentDidMount() {
     var that = this;
-    this.timer = setInterval(function() { return that.increment()}, 4000)
+    this.timer = setInterval(function() { return that.increment()}, 1000)
   }
 
   componentWillUnmount() {
