@@ -1,10 +1,30 @@
+:root {
+    --jam: #A40E4C;
+    --cadet: #2C2C54;
+    --olive: #ACC3A6;
+    --peach: #F5D6BA;
+    --sandy: #F49D6E;
+
+    --teal: rgba(60, 110, 113, 1);
+    --heather: #A7B0CA;
+    --plant: #A5D86B;
+    --blue: #8EDCE6;
+
+    --jam-light: #AF547A;
+    --cadet-light: #3E3E54;
+    --olive-light: #B7C19B;
+    --peach-light: #F4E8DE;
+    --sandy-light: #F4C5AB;
+
+    --border: #141414;
+}
 body {
     margin:5px;
+    font-family: 'Proxima Nova' ! important;
 }
 .line-chart, .bar-chart {
     /*max-width: 700px;*/
     /*width: 100%;*/
-    border: 1px dotted red;
 }
 
 div[class^='grid-container'] {
@@ -12,6 +32,7 @@ div[class^='grid-container'] {
     max-width: 100vw;
     grid-gap: 10pt;
     text-align: left;
+    margin-bottom: 10px;
 }
 
 .grid-container-1 {
@@ -21,22 +42,73 @@ div[class^='grid-container'] {
 .grid-container-2 {
     grid-template-columns: 4fr 1fr;
 }
-
-.left, .right {
-    position: relative;
-    min-width: 0;
-
-    /*width: calc(50vw - 5pt);*/
-    /*width: 100%;*/
-    height: 100%;
+.grid-container-3 {
+    grid-template-columns: 1fr 1fr 1fr;
 }
 
-@media (max-width: 700px) {
+div[class^='grid-container'] > div {
+    /*position: relative;*/
+    min-width: 0;
+    height: 100%;
+    overflow: hidden;
+    border: 1px dotted gainsboro;
+    border-radius: 7px;
+}
+
+/*.addPanel {
+    overflow: hidden;
+    border: 1px dotted gainsboro;
+    border-radius: 7px;
+}*/
+.background {
+    font-size: 12pt;
+    background-color: whitesmoke;
+    margin-bottom:5px;
+    /*margin-left: 4px;*/
+    padding: 6px 0px 4px 0px;
+}
+.titleHolder {
+    margin-left: 4px;
+}
+
+.titleHolder span:nth-child(2) {
+    margin-left: 4px;
+}
+
+.square_btn {
+    margin: 5px 0px 0px 5px;
+    display: inline-block;
+    padding: 0.25em .5em;
+    text-decoration: none;
+    font-size: 10pt;
+    border-radius: 3px;
+    transition: .4s;
+    color: white;
+    /*width: 40%;*/
+}
+.square_btn:hover {
+    background-color: white !important;
+    border-color: var(--border) ! important;
+    color: var(--border) !important;
+}
+
+.buttonHolder {
+    margin-bottom: 5px;
+    margin-right: 5px;
+}
+ @media (max-width: 1000px) {
      .grid-container-2 {
-         grid-template-columns: 1fr;
-         padding: 0pt !important;
-     }
-     .left, .right {
-         /*width: 100vw;*/
+         grid-template-columns: 3fr 1fr
      }
  }
+ @media (max-width: 790px) {
+     .grid-container-2 {
+         grid-template-columns: 2fr 1fr
+     }
+ }
+ @media (max-width: 700px) {
+      .grid-container-2, .grid-container-3 {
+          grid-template-columns: 1fr;
+          padding: 0pt !important;
+      }
+  }

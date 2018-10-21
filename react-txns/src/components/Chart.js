@@ -4,24 +4,8 @@ import { Bar, Line, Pie } from 'react-chartjs-2';
 export class Chart extends Component {
     constructor(props) {
         super(props);
+        console.log(props)
         this.state = {
-        //     datasets: [{
-        //         data: [ 1, 2, 3 ],
-        //         borderColor: ['#f87979'],
-        //         backgroundColor: ['gainsboro']
-        //     },
-        //     {
-        //         data: [ 3, 1, 4 ],
-        //         borderColor: ['#f73979'],
-        //         backgroundColor: ['gainsboro']
-        //     },
-        //     {
-        //         data: [2, 1, 4 ],
-        //         borderColor: ['#f18979'],
-        //         backgroundColor: ['gainsboro']
-        //     },
-        // ]
-
             chartData: {
                 labels: ["January", "February", "March", "April", "May", "June", "July"],
                 datasets: [{
@@ -50,9 +34,9 @@ export class Chart extends Component {
     }
 
     static defaultProps = {
-        displayTitle: true,
+        displayTitle: false,
         displayLegend: true,
-        legendPosition: 'left',
+        legendPosition: 'bottom',
         titleSize: 25
     }
 
@@ -72,9 +56,8 @@ export class LineChart extends Chart {
         return (
             <div className="line-chart">
             <Line
-
                 data={this.state.chartData}
-                height={250}
+                height={200}
                 options={{
                     type: 'line',
                     animation: {
@@ -82,10 +65,6 @@ export class LineChart extends Chart {
                     },
                     responsive: true,
                     maintainAspectRatio: false,
-                    title: {
-                        display: this.props.displayTitle,
-                        text: 'Piccirillo Siblings',
-                    },
                     legend: {
                         labels : {usePointStyle: true},
                         display: this.props.displayLegend,
