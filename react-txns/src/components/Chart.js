@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
+import Context from '../Context'
 import { Bar, Line, Pie } from 'react-chartjs-2';
 
-export class Chart extends Component {
+class Chart extends Context {
     static defaultProps = {
         displayTitle: false,
         displayLegend: true,
@@ -9,44 +10,77 @@ export class Chart extends Component {
         titleSize: 25
     }
 
-    render() {
-        return (
-            <div className="chart">
-            </div>
-        )
+    state = {
+      data: {
+          labels: [1,2,3, 4, 5, 6, 7, 8, 9, 10],
+          datasets: [{
+              data: [, , , , , , , , ,.3],
+              borderColor: '#f87979',
+              backgroundColor: 'rgba(0, 0, 0, 0)',
+          }]
+      },
     }
+
+    componentDidMount() {
+      var that = this;
+      this.timer = setInterval(function() { return that.increment()}, 1000)
+    }
+
+    componentWillUnmount() {
+      clearInterval(this.timer)
+    }
+
+    increment() {
+
+        var labels = this.state.data.labels
+        const labelsNew = labels;
+        labelsNew.shift()
+        labelsNew.push(labels[labels.length - 1]+1)
+
+        const datasetsCopy = this.state.data.datasets.slice(0);
+        const dataCopy = datasetsCopy[0].data.slice(0);
+
+        dataCopy.shift()
+        dataCopy.push(Math.random());
+        // console.log(dataCopy)
+        datasetsCopy[0].data = dataCopy;
+
+        this.setState({
+            data: Object.assign({}, this.state.data, {
+                datasets: datasetsCopy,
+                labels: labelsNew
+            })
+        });
+    }
+
 }
 
 export class LineChart extends Chart {
-    constructor(props) {
-        super(props);
-        this.state = {
-            chartData: props.chartData
-        }
-        console.log(this.state.chartData)
-    }
-    render() {
-        return (
-            <div className="line-chart">
-            <Line
-                data={this.state.chartData}
-                height={200}
-                options={{
-                    type: 'line',
-                    animation: {
-                        duration: 0
-                    },
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    legend: {
-                        labels : {usePointStyle: true},
-                        display: this.props.displayLegend,
-                        position: this.props.legendPosition
-                    }
-                }}
-            />
-            </div>
-        )
+
+    render(){
+        console.log(this.returnCats())
+      return(
+        <div>
+        <Line
+              data = {this.state.data}
+              height={200}
+              options={{
+                  type: 'line',
+                  animation: {
+                      duration: 100,
+                      display: 'linear'
+                  },
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  legend: {
+                      labels : {usePointStyle: true},
+                      display: false,
+                      position: this.props.legendPosition
+                  }
+              }}
+        />
+        </div>
+      )
     }
 }
 // export class BarChart extends Chart {
