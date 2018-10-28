@@ -5,17 +5,98 @@ function range(min,max) {
 }
 
 function makeTransaction(type) {
-     var amount = range(type.min, type.max).toFixed(2);
+     var amount = +range(type.min, type.max).toFixed(2);
      var vendor = type.vendors[Math.floor(range(0, type.vendors.length-1))];
-     return "$"  + amount + " at " + vendor;
+
+     return {amount: amount, vendor: vendor, title: type.title};
 }
 
 export class Context extends Component {
     constructor() {
         super()
         this.state = {
-            category: this.decide(this.returnCats())
+            category: this.decide(this.returnCats()),
+            active: ["0"],
+            data: {
+                labels: [1,2,3, 4, 5, 6, 7, 8, 9, 10],
+                datasets: []
+            },
         };
+    }
+
+    componentDidMount() {
+      var that = this;
+      this.timer = setInterval(function() { return that.increment(that.state)}, 4000)
+    }
+
+    componentWillUnmount() {
+      clearInterval(this.timer)
+    }
+
+    increment() {
+        var s = this.state
+        var labels = s.data.labels
+        const labelsNew = labels;
+        labelsNew.shift()
+        labelsNew.push(labels[labels.length - 1]+1)
+        console.log(labelsNew)
+
+        var newData = this.decide(this.returnCats())
+        // console.log(newData)
+
+        var active = this.state.active
+        // console.log(active)
+
+        const datasetsCopy = s.data.datasets.slice(0);
+        // console.log(datasetsCopy)
+
+        if (active.includes(newData.title)) {
+            console.log("category: " + newData.title + ".  Active array includes this already.")
+        } else {
+            console.log("category: " + newData.title + ".  NOT INCLUDED.")
+        }
+
+        if (!active.includes(newData.title)) {
+
+            datasetsCopy.forEach(function(val) { val.data.shift(); val.data.push(0) })
+
+            active.push(newData.title)
+            var newCat = {
+                    label: newData.title,
+                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, newData.amount],
+                    borderColor: this.returnColors()[newData.title],
+                    backgroundColor: 'rgba(0, 0, 0, 0)',
+                }
+            datasetsCopy.push(newCat)
+
+        } else {
+            datasetsCopy.forEach(function(val) {
+                // console.log(val)
+                if (val.label === newData.title) { val.data.push(newData.amount); }
+                else { val.data.push(0) }
+                val.data.shift()
+
+            })
+            //look for the correct object in datasets array
+            //add the number to it, add zeros to all others
+        }
+
+
+        // const dataCopy = datasetsCopy[0].data.slice(0);
+        console.log(datasetsCopy)
+
+        // dataCopy.shift()
+        // dataCopy.push(+newData.amount);
+        // datasetsCopy[0].data = dataCopy;
+        // datasetsCopy[0].label = newData.title;
+
+
+        this.setState({
+            data: Object.assign({}, this.state.data, {
+                datasets: datasetsCopy,
+                labels: labelsNew
+            })
+        });
     }
 
     decide(cats) {
@@ -33,34 +114,24 @@ export class Context extends Component {
         return makeTransaction(cats[decision])
     }
 
-    componentDidMount() {
-        var that = this;
-        this.timerID = setInterval(function() {
-            return that.tick();
-        }, 1000);
-    }
-
-    componentWillUnmount() {
-        clearInterval(this.timerID);
-    }
-
     tick() {
         this.setState({
-            category: this.decide(this.returnCats())
+            category: this.decide(this.returnCats()),
+            txns: this.increment()
         });
     }
 
     returnColors() {
         return {
-            jam: '#A40E4C',
-            cadet: '#2C2C54',
-            olive: '#ACC3A6',
-            peach: '#F5D6BA',
-            sandy: '#F49D6E',
-            teal: 'rgba(60, 110, 113, 1)',
-            heather: '#A7B0CA',
-            plant: '#A5D86B',
-            blue: '#8EDCE6',
+            "alcohol/bars": '#A40E4C',
+            "gas/fuel": '#2C2C54',
+            "groceries": '#ACC3A6',
+            "coffeeshop": '#F5D6BA',
+            "gym payment": '#F49D6E',
+            "restaurant": 'rgba(60, 110, 113, 1)',
+            "invest": '#A7B0CA',
+            "cellphone": '#A5D86B',
+            "income": '#8EDCE6',
         }
     }
     returnCats() {
@@ -69,7 +140,7 @@ export class Context extends Component {
             10: {
                 title: "gym payment",
                 display: "Pay gym membership",
-                color: colors.sandy,
+                color: colors["gym payment"],
                 button: false,
                 times: 0,
                 vendors: [
@@ -79,9 +150,9 @@ export class Context extends Component {
                 max: 50
             },
             11: {
-                title: "Alcohol and bars",
+                title: "alcohol/bars",
                 display: "Go to a bar",
-                color: colors.jam,
+                color: colors["alcohol/bars"],
                 button: true,
                 times: 0,
                 vendors: [
@@ -94,9 +165,9 @@ export class Context extends Component {
                 max: 50
             },
             32: {
-                title: "Groceries",
+                title: "groceries",
                 display: "Pick up groceries",
-                color: colors.olive,
+                color: colors["groceries"],
                 button: true,
                 times: 0,
                 vendors: [
@@ -109,9 +180,9 @@ export class Context extends Component {
                 max: 80
             },
             12: {
-                title: "Coffee Shop",
+                title: "coffeeshop",
                 display: "Grab a coffee",
-                color: colors.peach,
+                color: colors["coffeeshop"],
                 button: true,
                 times: 0,
                 vendors: [
@@ -126,9 +197,9 @@ export class Context extends Component {
                 max: 15
             },
             13: {
-                title: "Gas / Fuel",
+                title: "gas/fuel",
                 display: "Get gas",
-                color: colors.cadet,
+                color: colors["gas/fuel"],
                 button: true,
                 times: 0,
                 vendors: [
@@ -143,9 +214,9 @@ export class Context extends Component {
                 max: 40
             },
             14: {
-                title: "Cellphone",
+                title: "cellphone",
                 display: "Pay cellphone bill",
-                color: colors.plant,
+                color: colors["cellphone"],
                 button: false,
                 times: 0,
                 vendors: [
@@ -155,9 +226,9 @@ export class Context extends Component {
                 max: 66
             },
             35: {
-                title: "Restaurants",
+                title: "restaurant",
                 display: "Go out to eat",
-                color: colors.teal,
+                color: colors["restaurant"],
                 button: true,
                 times: 0,
                 vendors: [
@@ -176,9 +247,9 @@ export class Context extends Component {
                 max: 50
             },
             5: {
-                title: "Invest Money",
+                title: "invest",
                 display: "Invest money",
-                color: colors.heather,
+                color: colors["invest"],
                 button: true,
                 times: 0,
                 vendors:[
@@ -188,10 +259,10 @@ export class Context extends Component {
                 min: 100,
                 max: 10000
             },
-            9: {
-                title: "Income",
+            0: {
+                title: "income",
                 display: "Earn some income",
-                color: colors.blue,
+                color: colors["income"],
                 button: true,
                 times: 0,
                 vendors:[
