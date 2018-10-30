@@ -16,6 +16,10 @@ const proportions = {
     title: "Spending in Each Category",
 }
 
+const ledger = {
+    title: "Ledger of Expenses",
+}
+
 const Header = function(props) {
     return <div className='background'>
         <div className="titleHolder">
@@ -35,7 +39,6 @@ class ChartComponent extends Component {
     }
 
     render() {
-        // console.log(this.props.data)
       return (
         <div>
           <Header first={this.props.config.leftOfTitle} second={this.props.config.title}/>
@@ -46,9 +49,6 @@ class ChartComponent extends Component {
 }
 
 export class App extends Context {
-    constructor() {
-        super()
-    }
     makeButtons() {
         let total = [];
         var cats = this.returnCats()
@@ -64,12 +64,25 @@ export class App extends Context {
         }
         return (total)
     }
+    makeTxns() {
+        let total = [];
+        var ledger = this.state.ledger;
+        for (let t in ledger) {
+            // console.log(cats[c]);
+
+        var styles = {
+            color: 'red',
+        };
+        total.push(<div href="#" style={styles} className={""} key={t}>{ledger[t].title + ", " + ledger[t].amount}</div>)
+        }
+        return (total)
+    }
 
   render() {
     var data = this.state.data;
     return (
     <>
-      <div className="grid-container-2">
+      <div className="grid-container-2-left">
           <div>
               <ChartComponent config={txnsGeneral} data = {data} />
           </div>
@@ -81,23 +94,53 @@ export class App extends Context {
             </div>
           </div>
       </div>
-      <div className="grid-container-3">
-          <div>
-              <ChartComponent config={ netWorth } data = { data }/>
-          </div>
+      <div className="grid-container-2-right">
           <div>
           <ChartComponent config={txnsGeneral} data = { data }/>
 
           </div>
+          <div>
+                    {this.makeTxns()}
+          </div>
       </div>
       <div className="grid-container-1">
           <div>
-              <ChartComponent config={ proportions } data = { data }/>
+              <ChartComponent config={ netWorth } data = { data }/>
           </div>
       </div>
     </>
     );
   }
 }
+
+const Transactions = function(props) {
+    return <div className='background'>
+        <div className="titleHolder">
+                <span><b>{props.first}</b></span>
+                <span>{props.second}</span>
+                </div>
+          </div>;
+      }
+
+// export class Transactions extends Component {
+//     constructor(props) {
+//         super()
+//         // console.log(props)
+//     }
+//   render() {
+//       console.log(this.props)
+//     return (
+//       <div className="">
+//         <ul className="">{
+//             Object.keys(this.props).map(function(key) {
+//                 var  l = this.props;
+//               return <ul className="" key={key}>{l[key].title + ", " + l[key].amount + ", " + l[key].vendor}</ul>
+//             }.bind(this))
+//           }
+//         </ul>
+//       </div>
+//     );
+//   }
+// }
 
 export default App;

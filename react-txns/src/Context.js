@@ -1,24 +1,56 @@
 import React, { Component } from 'react';
 
 function range(min,max) {
-    return Math.random()*(max-min+1)+min;
+    return parseFloat((Math.random()*(max-min+1)+min).toFixed(2));
 }
 
 function makeTransaction(type) {
      var amount = +range(type.min, type.max).toFixed(2);
      var vendor = type.vendors[Math.floor(range(0, type.vendors.length-1))];
 
-     return {amount: amount, vendor: vendor, title: type.title};
+     return {
+         amount: amount,
+         vendor: vendor,
+         title: type.title
+     };
+}
+
+var colors = {
+    "alcohol/bars": '#A40E4C',
+    "gas/fuel": '#2C2C54',
+    "groceries": '#ACC3A6',
+    "coffeeshop": '#F5D6BA',
+    "gym payment": '#F49D6E',
+    "restaurant": 'rgba(60, 110, 113, 1)',
+    "invest": '#A7B0CA',
+    "cellphone": '#A5D86B',
+    "income": '#8EDCE6',
+}
+
+function getFirstDates() {
+    var dates = [];
+	var today = new Date()
+
+    for(var i = 0; i < 10; i++) {
+        dates.push(new Date(today.setDate(today.getDate() + 1)).toLocaleDateString("en-US"));
+    }
+    return dates;
+}
+
+function getNextDate(arr) {
+	var last = new Date(arr[arr.length-1])
+	// console.log(last);
+	return new Date(last.setDate(last.getDate() + 1)).toLocaleDateString("en-US")
 }
 
 export class Context extends Component {
     constructor() {
         super()
         this.state = {
-            category: this.decide(this.returnCats()),
+            ledger: [],
             active: ["0"],
             data: {
-                labels: [1,2,3, 4, 5, 6, 7, 8, 9, 10],
+                labels: getFirstDates(),
                 datasets: []
             },
         };
@@ -26,7 +58,13 @@ export class Context extends Component {
 
     componentDidMount() {
       var that = this;
-      this.timer = setInterval(function() { return that.increment(that.state)}, 4000)
+      var x = 0;
+      this.timer = setInterval(function() {
+          if (++x === 3) {
+                window.clearInterval(that.timer);
+            }
+          return that.increment(that.state)
+      }, 1000)
     }
 
     componentWillUnmount() {
@@ -34,69 +72,80 @@ export class Context extends Component {
     }
 
     increment() {
-        var s = this.state
+        var s = this.state;
         var labels = s.data.labels
         const labelsNew = labels;
+        labelsNew.push(getNextDate(labels))
         labelsNew.shift()
-        labelsNew.push(labels[labels.length - 1]+1)
-        console.log(labelsNew)
 
-        var newData = this.decide(this.returnCats())
+        var a = this.state.active;
+        var newData = this.decide(this.returnCats());
+
+        var timestamp = (new Date()).getTime();
+        const ledgerCopy = s.ledger.slice(0);
+        // console.log(newData)
+        ledgerCopy.push(newData);
+
         // console.log(newData)
 
-        var active = this.state.active
-        // console.log(active)
-
         const datasetsCopy = s.data.datasets.slice(0);
-        // console.log(datasetsCopy)
 
-        if (active.includes(newData.title)) {
-            console.log("category: " + newData.title + ".  Active array includes this already.")
-        } else {
-            console.log("category: " + newData.title + ".  NOT INCLUDED.")
-        }
+        if (!a.includes(newData.title)) {
+            a.push(newData.title)
+            // console.log("New Category: " + newData.title)
 
-        if (!active.includes(newData.title)) {
+            // increment all other categories w 0 spent
+            datasetsCopy.forEach(function(val, i) {
+                var dataCopy = datasetsCopy[i].data.slice(0);
+                // console.log(dataCopy)
+                dataCopy.push(0);
+                dataCopy.shift()
+                datasetsCopy[i].data = dataCopy;
+            })
 
-            datasetsCopy.forEach(function(val) { val.data.shift(); val.data.push(0) })
-
-            active.push(newData.title)
             var newCat = {
-                    label: newData.title,
-                    data: [0, 0, 0, 0, 0, 0, 0, 0, 0, newData.amount],
-                    borderColor: this.returnColors()[newData.title],
-                    backgroundColor: 'rgba(0, 0, 0, 0)',
-                }
+                label: newData.title,
+                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, newData.amount],
+                borderColor: colors[newData.title],
+                backgroundColor: 'rgba(0, 0, 0, 0)',
+            }
             datasetsCopy.push(newCat)
 
         } else {
-            datasetsCopy.forEach(function(val) {
-                // console.log(val)
-                if (val.label === newData.title) { val.data.push(newData.amount); }
-                else { val.data.push(0) }
-                val.data.shift()
+            datasetsCopy.forEach(function(val, i) {
+                var dataCopy = datasetsCopy[i].data.slice(0);
 
+                //if chosen category already exists and needs an expense added
+                //to it, catch it
+                if (val.label===newData.title) {
+                    dataCopy.push(newData.amount);
+                    console.log("adding expense to " + newData.title + " category")
+                }
+                //then increment all others w 0 spent
+                else { dataCopy.push(0); }
+                dataCopy.shift()
+                // console.log(dataCopy)
+                datasetsCopy[i].data = dataCopy;
             })
-            //look for the correct object in datasets array
-            //add the number to it, add zeros to all others
         }
 
 
-        // const dataCopy = datasetsCopy[0].data.slice(0);
-        console.log(datasetsCopy)
-
-        // dataCopy.shift()
-        // dataCopy.push(+newData.amount);
-        // datasetsCopy[0].data = dataCopy;
-        // datasetsCopy[0].label = newData.title;
+        // console.log(ledgerCopy)
+        // update the state object
+        // this.state.ledger = data;
+        // set the state
+        // this.setState({ ledger: ledgerCopy });
 
 
         this.setState({
-            data: Object.assign({}, this.state.data, {
+            data: Object.assign({}, s.data, {
                 datasets: datasetsCopy,
                 labels: labelsNew
-            })
+            }),
+            ledger: ledgerCopy
         });
+        // console.log(this.state.ledger)
+        // this.incrementLedger(newData);
     }
 
     decide(cats) {
@@ -121,21 +170,8 @@ export class Context extends Component {
         });
     }
 
-    returnColors() {
-        return {
-            "alcohol/bars": '#A40E4C',
-            "gas/fuel": '#2C2C54',
-            "groceries": '#ACC3A6',
-            "coffeeshop": '#F5D6BA',
-            "gym payment": '#F49D6E',
-            "restaurant": 'rgba(60, 110, 113, 1)',
-            "invest": '#A7B0CA',
-            "cellphone": '#A5D86B',
-            "income": '#8EDCE6',
-        }
-    }
     returnCats() {
-        var colors = this.returnColors();
+        // var colors = colors;
         return {
             10: {
                 title: "gym payment",
@@ -179,7 +215,7 @@ export class Context extends Component {
                 min: 10,
                 max: 80
             },
-            12: {
+            50: {
                 title: "coffeeshop",
                 display: "Grab a coffee",
                 color: colors["coffeeshop"],
@@ -246,7 +282,7 @@ export class Context extends Component {
                 min: 12,
                 max: 50
             },
-            5: {
+            0: {
                 title: "invest",
                 display: "Invest money",
                 color: colors["invest"],
@@ -274,12 +310,13 @@ export class Context extends Component {
                 min: 100,
                 max: 10000
             }
+
         }
     }
 
     render() {
+        //             <h5>It is { String(this.state.category) }.</h5>
         return (<div>
-            <h5>It is { String(this.state.category) }.</h5>
         </div>)
     }
 }

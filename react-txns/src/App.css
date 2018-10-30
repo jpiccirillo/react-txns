@@ -41,8 +41,11 @@ div[class^='grid-container'] {
     grid-template-columns: 1fr;
 }
 
-.grid-container-2 {
+.grid-container-2-left {
     grid-template-columns: 4fr 1fr;
+}
+.grid-container-2-right {
+    grid-template-columns: 2fr 3fr;
 }
 .grid-container-3 {
     grid-template-columns: 1fr 1fr 1fr;
@@ -99,17 +102,17 @@ div[class^='grid-container'] > div {
     margin-right: 5px;
 }
  @media (max-width: 1000px) {
-     .grid-container-2 {
+     .grid-container-2-left {
          grid-template-columns: 3fr 1fr
      }
  }
  @media (max-width: 790px) {
-     .grid-container-2 {
+     .grid-container-2-left {
          grid-template-columns: 2fr 1fr
      }
  }
  @media (max-width: 700px) {
-      .grid-container-2, .grid-container-3 {
+      .grid-container-2-left, .grid-container-3 {
           grid-template-columns: 1fr;
           padding: 0pt !important;
       }

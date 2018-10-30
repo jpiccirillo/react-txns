@@ -29,6 +29,11 @@ export class LineChart extends Chart {
                       duration: 100,
                       display: 'linear'
                   },
+                  // elements: {
+                  //       line: {
+                  //           tension: 0, // disables bezier curves
+                  //       }
+                  //   },
                   responsive: true,
                   maintainAspectRatio: false,
                   legend: {
