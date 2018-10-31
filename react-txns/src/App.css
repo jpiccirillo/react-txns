@@ -79,7 +79,35 @@ div[class^='grid-container'] > div {
 .titleHolder span:nth-child(2) {
     margin-left: 4px;
 }
-
+.ledgerTable {
+    padding: 5px;
+    padding-top: 0px;
+    overflow: scroll;
+    max-height: 200px;
+    font-family: 'Courier New';
+    font-size: 10pt;
+    font-style: oblique;
+    font-weight: 900;
+    text-align: left;
+}
+.ledgerTable table {
+    width: 100%;
+    border-spacing: 0px;
+    border-collapse: collapse;
+}
+.ledgerTable th {
+    font-style: normal;
+    background: #F5F6F6
+}
+.amount, .date {
+    width: 15%;
+}
+.category {
+     width: 20%;
+}
+.vendor {
+    width: 50%;
+}
 .square_btn {
     margin: 5px 0px 0px 5px;
     display: inline-block;
@@ -112,7 +140,7 @@ div[class^='grid-container'] > div {
      }
  }
  @media (max-width: 700px) {
-      .grid-container-2-left, .grid-container-3 {
+      div[class^='grid-container-2'], .grid-container-3 {
           grid-template-columns: 1fr;
           padding: 0pt !important;
       }

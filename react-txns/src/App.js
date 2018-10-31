@@ -66,15 +66,22 @@ export class App extends Context {
     }
     makeTxns() {
         let total = [];
-        var ledger = this.state.ledger;
-        for (let t in ledger) {
-            // console.log(cats[c]);
+        var ledger = this.state.ledger
+        var colors = this.returnColors()
 
-        var styles = {
-            color: 'red',
-        };
-        total.push(<div href="#" style={styles} className={""} key={t}>{ledger[t].title + ", " + ledger[t].amount}</div>)
-        }
+        for (let t in ledger) {
+            var styles = {
+                color: colors[ledger[t].title],
+                borderBottom: '1px dotted gainsboro'
+            };
+            total.push(
+                <tr href="#" style={styles} className={"ledgerRow"} key={t}>
+                    <td>{ledger[t].date}</td>
+                    <td>{ledger[t].amount}</td>
+                    <td>{ledger[t].title}</td>
+                    <td>{ledger[t].vendor}</td>
+                </tr>)
+            }
         return (total)
     }
 
@@ -100,7 +107,20 @@ export class App extends Context {
 
           </div>
           <div>
-                    {this.makeTxns()}
+            <Header second={"Ledger of Transactions"} />
+            <div className="ledgerTable">
+            <table>
+                <tbody>
+              <tr>
+                <th className="date">{"Date"}</th>
+                <th className="amount">{"Amount"}</th>
+                <th className="category">{"Category"}</th>
+                <th className="vendor">{"Vendor"}</th>
+              </tr>
+              {this.makeTxns()}
+              </tbody>
+            </table>
+            </div>
           </div>
       </div>
       <div className="grid-container-1">
@@ -113,34 +133,5 @@ export class App extends Context {
   }
 }
 
-const Transactions = function(props) {
-    return <div className='background'>
-        <div className="titleHolder">
-                <span><b>{props.first}</b></span>
-                <span>{props.second}</span>
-                </div>
-          </div>;
-      }
-
-// export class Transactions extends Component {
-//     constructor(props) {
-//         super()
-//         // console.log(props)
-//     }
-//   render() {
-//       console.log(this.props)
-//     return (
-//       <div className="">
-//         <ul className="">{
-//             Object.keys(this.props).map(function(key) {
-//                 var  l = this.props;
-//               return <ul className="" key={key}>{l[key].title + ", " + l[key].amount + ", " + l[key].vendor}</ul>
-//             }.bind(this))
-//           }
-//         </ul>
-//       </div>
-//     );
-//   }
-// }
 
 export default App;

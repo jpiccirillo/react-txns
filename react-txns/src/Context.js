@@ -1,38 +1,29 @@
 import React, { Component } from 'react';
 
+const NUMDAYS = 15;
+var dateOptions = { year: '2-digit', month: 'numeric', day: 'numeric' };
+
 function range(min,max) {
-    return parseFloat((Math.random()*(max-min+1)+min).toFixed(2));
+    return (Math.random()*(max-min+1)+min).toFixed(2);
 }
 
-function makeTransaction(type) {
-     var amount = +range(type.min, type.max).toFixed(2);
+function makeTransaction(type, date) {
      var vendor = type.vendors[Math.floor(range(0, type.vendors.length-1))];
 
      return {
-         amount: amount,
+         date: new Date(date).toLocaleDateString("en-US", {month: 'short', day: 'numeric'}),
+         amount: String(range(type.min, type.max)),
          vendor: vendor,
          title: type.title
      };
 }
 
-var colors = {
-    "alcohol/bars": '#A40E4C',
-    "gas/fuel": '#2C2C54',
-    "groceries": '#ACC3A6',
-    "coffeeshop": '#F5D6BA',
-    "gym payment": '#F49D6E',
-    "restaurant": 'rgba(60, 110, 113, 1)',
-    "invest": '#A7B0CA',
-    "cellphone": '#A5D86B',
-    "income": '#8EDCE6',
-}
-
-function getFirstDates() {
+function getFirstDates(num) {
     var dates = [];
 	var today = new Date()
 
-    for(var i = 0; i < 10; i++) {
-        dates.push(new Date(today.setDate(today.getDate() + 1)).toLocaleDateString("en-US"));
+    for(var i = 0; i < num; i++) {
+        dates.push(new Date(today.setDate(today.getDate() + 1)).toLocaleDateString("en-US", dateOptions));
     }
     return dates;
 }
@@ -40,7 +31,7 @@ function getFirstDates() {
 function getNextDate(arr) {
 	var last = new Date(arr[arr.length-1])
 	// console.log(last);
-	return new Date(last.setDate(last.getDate() + 1)).toLocaleDateString("en-US")
+	return new Date(last.setDate(last.getDate() + 1)).toLocaleDateString("en-US", dateOptions)
 }
 
 export class Context extends Component {
@@ -50,7 +41,7 @@ export class Context extends Component {
             ledger: [],
             active: ["0"],
             data: {
-                labels: getFirstDates(),
+                labels: getFirstDates(NUMDAYS),
                 datasets: []
             },
         };
@@ -60,7 +51,7 @@ export class Context extends Component {
       var that = this;
       var x = 0;
       this.timer = setInterval(function() {
-          if (++x === 3) {
+          if (++x === 20) {
                 window.clearInterval(that.timer);
             }
           return that.increment(that.state)
@@ -72,16 +63,16 @@ export class Context extends Component {
     }
 
     increment() {
+        var colors = this.returnColors()
         var s = this.state;
-        var labels = s.data.labels
+        var labels = s.data.labels;
         const labelsNew = labels;
-        labelsNew.push(getNextDate(labels))
+        var newDate = getNextDate(labels);
+        labelsNew.push(newDate)
         labelsNew.shift()
 
         var a = this.state.active;
-        var newData = this.decide(this.returnCats());
-
-        var timestamp = (new Date()).getTime();
+        var newData = this.decide(this.returnCats(), newDate);
         const ledgerCopy = s.ledger.slice(0);
         // console.log(newData)
         ledgerCopy.push(newData);
@@ -102,10 +93,13 @@ export class Context extends Component {
                 dataCopy.shift()
                 datasetsCopy[i].data = dataCopy;
             })
+            var newArray = [];
+            for(var i = 0; i < NUMDAYS; i++) { newArray.push(0); }
+            newArray.push(newData.amount)
 
             var newCat = {
                 label: newData.title,
-                data: [0, 0, 0, 0, 0, 0, 0, 0, 0, newData.amount],
+                data: newArray,
                 borderColor: colors[newData.title],
                 backgroundColor: 'rgba(0, 0, 0, 0)',
             }
@@ -148,7 +142,7 @@ export class Context extends Component {
         // this.incrementLedger(newData);
     }
 
-    decide(cats) {
+    decide(cats, date) {
         var arr = Object.keys(cats),
         sum = arr.reduce((total, curr) => +total+ +curr, 0),
         num = range(0, sum),
@@ -160,7 +154,7 @@ export class Context extends Component {
             return num < copy[i];
         });
         cats[decision].times += 1;
-        return makeTransaction(cats[decision])
+        return makeTransaction(cats[decision], date)
     }
 
     tick() {
@@ -171,7 +165,7 @@ export class Context extends Component {
     }
 
     returnCats() {
-        // var colors = colors;
+        var colors = this.returnColors();
         return {
             10: {
                 title: "gym payment",
@@ -185,7 +179,7 @@ export class Context extends Component {
                 min: 50,
                 max: 50
             },
-            11: {
+            31: {
                 title: "alcohol/bars",
                 display: "Go to a bar",
                 color: colors["alcohol/bars"],
@@ -256,7 +250,7 @@ export class Context extends Component {
                 button: false,
                 times: 0,
                 vendors: [
-                    "ATT Thanks for your Online Payment"
+                    "ATT Thank you for your Online Payment"
                 ],
                 min: 64,
                 max: 66
@@ -295,7 +289,7 @@ export class Context extends Component {
                 min: 100,
                 max: 10000
             },
-            0: {
+            1: {
                 title: "income",
                 display: "Earn some income",
                 color: colors["income"],
@@ -314,6 +308,19 @@ export class Context extends Component {
         }
     }
 
+    returnColors() {
+        return {
+            "alcohol/bars": '#A40E4C',
+            "gas/fuel": '#2C2C54',
+            "groceries": '#ACC3A6',
+            "coffeeshop": '#F5D6BA',
+            "gym payment": '#F49D6E',
+            "restaurant": 'rgba(60, 110, 113, 1)',
+            "invest": '#A7B0CA',
+            "cellphone": '#A5D86B',
+            "income": '#8EDCE6',
+        }
+    }
     render() {
         //             <h5>It is { String(this.state.category) }.</h5>
         return (<div>
