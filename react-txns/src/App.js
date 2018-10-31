@@ -5,19 +5,23 @@ import { LineChart, BarChart, BarExample } from './components/Chart'
 
 const netWorth = {
     title: "Net Worth Over Time",
+    type: "networth"
 }
 
 let txnsGeneral = {
     title: "Transactions Over Time",
-    leftOfTitle: "May 30, 2018"
+    leftOfTitle: "May 30, 2018",
+    type: "line"
 }
 
 const proportions = {
     title: "Spending in Each Category",
+    type: "donut"
 }
 
 const ledger = {
     title: "Ledger of Expenses",
+    type: "ledger"
 }
 
 const Header = function(props) {
@@ -36,13 +40,14 @@ class ChartComponent extends Component {
         this.state = {
             properties: props,
         }
+        // console.log(props)
     }
 
     render() {
       return (
         <div>
           <Header first={this.props.config.leftOfTitle} second={this.props.config.title}/>
-          <LineChart chartData={this.props.data} />
+          <LineChart chartData={this.props.data} type={this.props.config.type} />
         </div>
       );
     }
@@ -86,7 +91,7 @@ export class App extends Context {
     }
 
   render() {
-    var data = this.state.data;
+    var data = this.state;
     return (
     <>
       <div className="grid-container-2-left">

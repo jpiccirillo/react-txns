@@ -14,14 +14,17 @@ class Chart extends Component {
 export class LineChart extends Chart {
     constructor(props) {
         super()
-        // console.log(props)
+        console.log(props)
     }
 
     render(){
+      if (this.props.type==="networth") { var data = this.props.chartData.history }
+      else { var data = this.props.chartData.data }
+      console.log(this.props)
       return(
         <div>
         <Line
-              data = {this.props.chartData}
+              data = { data }
               height={200}
               options={{
                   type: 'line',
@@ -29,11 +32,6 @@ export class LineChart extends Chart {
                       duration: 100,
                       display: 'linear'
                   },
-                  // elements: {
-                  //       line: {
-                  //           tension: 0, // disables bezier curves
-                  //       }
-                  //   },
                   responsive: true,
                   maintainAspectRatio: false,
                   legend: {

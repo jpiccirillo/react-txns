@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 const NUMDAYS = 15;
+const CAPITAL = 3000;
 var dateOptions = { year: '2-digit', month: 'numeric', day: 'numeric' };
 
 function range(min,max) {
@@ -11,6 +12,7 @@ function makeTransaction(type, date) {
      var vendor = type.vendors[Math.floor(range(0, type.vendors.length-1))];
 
      return {
+         type: type.type,
          date: new Date(date).toLocaleDateString("en-US", {month: 'short', day: 'numeric'}),
          amount: String(range(type.min, type.max)),
          vendor: vendor,
@@ -39,6 +41,10 @@ export class Context extends Component {
         super()
         this.state = {
             ledger: [],
+            history: {
+                labels: getFirstDates(NUMDAYS),
+                datasets: [ this.initNetWorth() ]
+            },
             active: ["0"],
             data: {
                 labels: getFirstDates(NUMDAYS),
@@ -62,28 +68,55 @@ export class Context extends Component {
       clearInterval(this.timer)
     }
 
+    incrementLabels(l, date) {
+        var labelsNew = l;
+        labelsNew.push(date)
+        labelsNew.shift()
+        return labelsNew;
+    }
+
+    makeNewArray(firstVals, endVal) {
+        var newArray = [];
+        for(var i = 0; i < NUMDAYS; i++) { newArray.push(firstVals); }
+        newArray.push(endVal)
+        return newArray;
+    }
+    initNetWorth() {
+        return {
+            label: 'Net Worth',
+            data: this.makeNewArray(CAPITAL, CAPITAL),
+            borderColor: 'gainsboro',
+            backgroundColor: 'rgba(0, 0, 0, 0)',
+        }
+    }
+    processNetWorth(txn) {
+
+    }
     increment() {
         var colors = this.returnColors()
         var s = this.state;
-        var labels = s.data.labels;
-        const labelsNew = labels;
-        var newDate = getNextDate(labels);
-        labelsNew.push(newDate)
-        labelsNew.shift()
-
         var a = this.state.active;
-        var newData = this.decide(this.returnCats(), newDate);
+        var newDate = getNextDate(s.data.labels);
+
+        const labelsNew = this.incrementLabels(s.data.labels, newDate)
+        const newData = this.decide(this.returnCats(), newDate);
         const ledgerCopy = s.ledger.slice(0);
-        // console.log(newData)
         ledgerCopy.push(newData);
 
-        // console.log(newData)
+        const hc = s.history.datasets.slice(0); //historyCopy
+        const hcData = hc[0].data.slice(0)
+        console.log(newData.type)
+
+        if (newData.type == "debit") { hcData.push(+hcData[hcData.length-1]-(+newData.amount))}
+        else { hcData.push(+hcData[hcData.length-1]+(+newData.amount))}
+        hcData.shift()
+        // console.log(hc)
+        hc[0].data = hcData
 
         const datasetsCopy = s.data.datasets.slice(0);
 
         if (!a.includes(newData.title)) {
             a.push(newData.title)
-            // console.log("New Category: " + newData.title)
 
             // increment all other categories w 0 spent
             datasetsCopy.forEach(function(val, i) {
@@ -93,16 +126,14 @@ export class Context extends Component {
                 dataCopy.shift()
                 datasetsCopy[i].data = dataCopy;
             })
-            var newArray = [];
-            for(var i = 0; i < NUMDAYS; i++) { newArray.push(0); }
-            newArray.push(newData.amount)
 
             var newCat = {
                 label: newData.title,
-                data: newArray,
+                data: this.makeNewArray(0, newData.amount),
                 borderColor: colors[newData.title],
                 backgroundColor: 'rgba(0, 0, 0, 0)',
             }
+
             datasetsCopy.push(newCat)
 
         } else {
@@ -136,23 +167,28 @@ export class Context extends Component {
                 datasets: datasetsCopy,
                 labels: labelsNew
             }),
-            ledger: ledgerCopy
+            ledger: ledgerCopy,
+            history: Object.assign({}, s.history, {
+                datasets: hc,
+                labels: labelsNew
+            }),
         });
         // console.log(this.state.ledger)
         // this.incrementLedger(newData);
     }
 
     decide(cats, date) {
-        var arr = Object.keys(cats),
-        sum = arr.reduce((total, curr) => +total+ +curr, 0),
-        num = range(0, sum),
-        decision = 0,
-        copy = [];
+        var arr = Object.keys(cats);
+        var sum = arr.reduce((total, curr) => +total+ +curr, 0);
+        var decision = 0;
+        var copy = [];
+
         arr.some(function (val, i) {
             copy[i] = (i===0) ? +arr[i] : +arr[i] + +copy[i-1];
             decision = val;
-            return num < copy[i];
+            return range(0, sum) < copy[i];
         });
+
         cats[decision].times += 1;
         return makeTransaction(cats[decision], date)
     }
@@ -177,7 +213,8 @@ export class Context extends Component {
                     "Anytime Fitness"
                 ],
                 min: 50,
-                max: 50
+                max: 50,
+                type: 'debit'
             },
             31: {
                 title: "alcohol/bars",
@@ -192,7 +229,8 @@ export class Context extends Component {
                     "Weather Up"
                 ],
                 min: 5,
-                max: 50
+                max: 50,
+                type: 'debit'
             },
             32: {
                 title: "groceries",
@@ -207,7 +245,8 @@ export class Context extends Component {
                     "Dierbergs"
                 ],
                 min: 10,
-                max: 80
+                max: 80,
+                type: 'debit'
             },
             50: {
                 title: "coffeeshop",
@@ -224,7 +263,8 @@ export class Context extends Component {
                     "Monkey Nest Coffee"
                 ],
                 min: 1.25,
-                max: 15
+                max: 15,
+                type: 'debit'
             },
             13: {
                 title: "gas/fuel",
@@ -241,9 +281,10 @@ export class Context extends Component {
                     "Gulf Gas Station"
                 ],
                 min: 30,
-                max: 40
+                max: 40,
+                type: 'debit'
             },
-            14: {
+            4: {
                 title: "cellphone",
                 display: "Pay cellphone bill",
                 color: colors["cellphone"],
@@ -253,7 +294,8 @@ export class Context extends Component {
                     "ATT Thank you for your Online Payment"
                 ],
                 min: 64,
-                max: 66
+                max: 66,
+                type: 'debit'
             },
             35: {
                 title: "restaurant",
@@ -274,7 +316,8 @@ export class Context extends Component {
                     "Tyson's Tacos"
                 ],
                 min: 12,
-                max: 50
+                max: 50,
+                type: 'debit'
             },
             0: {
                 title: "invest",
@@ -287,9 +330,10 @@ export class Context extends Component {
                     "Discover Online Banking"
                 ],
                 min: 100,
-                max: 10000
+                max: 10000,
+                type: 'neither'
             },
-            1: {
+            20: {
                 title: "income",
                 display: "Earn some income",
                 color: colors["income"],
@@ -302,7 +346,8 @@ export class Context extends Component {
                     "Tutored"
                 ],
                 min: 100,
-                max: 10000
+                max: 1000,
+                type: 'credit'
             }
 
         }
