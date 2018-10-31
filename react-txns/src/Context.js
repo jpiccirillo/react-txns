@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 
 const NUMDAYS = 15;
+const WINDOW = 30;
 const CAPITAL = 3000;
 var dateOptions = { year: '2-digit', month: 'numeric', day: 'numeric' };
 
@@ -42,12 +43,12 @@ export class Context extends Component {
         this.state = {
             ledger: [],
             history: {
-                labels: getFirstDates(NUMDAYS),
+                labels: getFirstDates(WINDOW),
                 datasets: [ this.initNetWorth() ]
             },
             active: ["0"],
             data: {
-                labels: getFirstDates(NUMDAYS),
+                labels: getFirstDates(WINDOW),
                 datasets: []
             },
         };
@@ -57,7 +58,7 @@ export class Context extends Component {
       var that = this;
       var x = 0;
       this.timer = setInterval(function() {
-          if (++x === 20) {
+          if (++x === NUMDAYS) {
                 window.clearInterval(that.timer);
             }
           return that.increment(that.state)
@@ -77,7 +78,7 @@ export class Context extends Component {
 
     makeNewArray(firstVals, endVal) {
         var newArray = [];
-        for(var i = 0; i < NUMDAYS; i++) { newArray.push(firstVals); }
+        for(var i = 0; i < WINDOW; i++) { newArray.push(firstVals); }
         newArray.push(endVal)
         return newArray;
     }
@@ -89,8 +90,20 @@ export class Context extends Component {
             backgroundColor: 'rgba(0, 0, 0, 0)',
         }
     }
-    processNetWorth(txn) {
-
+    processNetWorth(s, txn) {
+        //s is state, txn is transaction
+        const hc = s.history.datasets.slice(0); //historyCopy
+        const hcData = hc[0].data.slice(0);
+        var last = hcData[hcData.length-1]
+        var toPush = 0;
+        if (txn.type == "debit") toPush = last-(+txn.amount)
+        else if (txn.type=="neither") toPush = last
+        else toPush = last+(+txn.amount)
+        hcData.push(toPush.toFixed(2))
+        // hcData[hcData.length-1] = hcData[hcData.length-1].toFixed(2)
+        hcData.shift()
+        hc[0].data = hcData
+        return hc;
     }
     increment() {
         var colors = this.returnColors()
@@ -102,16 +115,6 @@ export class Context extends Component {
         const newData = this.decide(this.returnCats(), newDate);
         const ledgerCopy = s.ledger.slice(0);
         ledgerCopy.push(newData);
-
-        const hc = s.history.datasets.slice(0); //historyCopy
-        const hcData = hc[0].data.slice(0)
-        console.log(newData.type)
-
-        if (newData.type == "debit") { hcData.push(+hcData[hcData.length-1]-(+newData.amount))}
-        else { hcData.push(+hcData[hcData.length-1]+(+newData.amount))}
-        hcData.shift()
-        // console.log(hc)
-        hc[0].data = hcData
 
         const datasetsCopy = s.data.datasets.slice(0);
 
@@ -169,7 +172,7 @@ export class Context extends Component {
             }),
             ledger: ledgerCopy,
             history: Object.assign({}, s.history, {
-                datasets: hc,
+                datasets: this.processNetWorth(s, newData),
                 labels: labelsNew
             }),
         });
