@@ -1,6 +1,6 @@
 import React, { Component }from 'react';
 import Context from '../Context'
-import { Bar, Line, Pie } from 'react-chartjs-2';
+import { Bar, Line, Pie, Doughnut } from 'react-chartjs-2';
 
 class Chart extends Component {
     static defaultProps = {
@@ -14,13 +14,18 @@ class Chart extends Component {
 export class LineChart extends Chart {
     constructor(props) {
         super()
-        console.log(props)
+        // console.log(props)
     }
 
     render(){
-      if (this.props.type==="networth") { var data = this.props.chartData.history }
-      else { var data = this.props.chartData.data }
-      console.log(this.props)
+        if (this.props.type==="networth") {
+            var data = this.props.chartData.history
+        } else if (this.props.type==="donut") {
+            var data = this.props.chartData.proportions
+        } else {
+            var data = this.props.chartData.data
+        }
+      // console.log(this.props)
       return(
         <div>
         <Line
@@ -29,7 +34,7 @@ export class LineChart extends Chart {
               options={{
                   type: 'line',
                   animation: {
-                      duration: 100,
+                      duration: 0,
                       display: 'linear'
                   },
                   responsive: true,
@@ -38,6 +43,43 @@ export class LineChart extends Chart {
                       labels : {usePointStyle: true},
                       display: false,
                       position: this.props.legendPosition
+                  }
+              }}
+        />
+        </div>
+      )
+    }
+}
+export class DoughnutChart extends Chart {
+    constructor(props) {
+        super()
+        // console.log(props)
+    }
+
+    render(){
+      if (this.props.type==="networth") {
+          var data = this.props.chartData.history
+      } else if (this.props.type==="donut") {
+          var data = this.props.chartData.proportions
+      } else {
+          var data = this.props.chartData.data
+      }
+      // console.log(this.props)
+      return(
+        <div>
+        <Doughnut
+              data = { data }
+              height={200}
+              options={{
+                  animation: {
+                      duration: 0,
+                  },
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  legend: {
+                      labels : {usePointStyle: true},
+                      display: true,
+                      position: "right"
                   }
               }}
         />
