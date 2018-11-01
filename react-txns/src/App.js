@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import './App.css';
 import Context from './Context'
-import { LineChart, BarChart, BarExample } from './components/Chart'
+import { LineChart, BarChart, DoughnutChart, BarExample } from './components/Chart'
 
 const netWorth = {
     title: "Net Worth Over Time",
@@ -40,15 +40,25 @@ class ChartComponent extends Component {
         this.state = {
             properties: props,
         }
-        // console.log(props)
     }
 
+    makeComponent() {
+        var type = this.props.config.type;
+        var title = this.props.config.title;
+        console.log(title)
+        var total = [];
+        total.push(<Header key={title+"_title"}  first={this.props.config.leftOfTitle} second={title}/>)
+        if (type == "donut") {
+            total.push(<DoughnutChart key={title} chartData={this.props.data} type={this.props.config.type} />)
+        } else {
+            total.push(<LineChart key={title} chartData={this.props.data} type={this.props.config.type} />)
+        }
+        console.log(this.props)
+        return (total);
+    }
     render() {
       return (
-        <div>
-          <Header first={this.props.config.leftOfTitle} second={this.props.config.title}/>
-          <LineChart chartData={this.props.data} type={this.props.config.type} />
-        </div>
+          this.makeComponent()
       );
     }
 }
@@ -108,7 +118,7 @@ export class App extends Context {
       </div>
       <div className="grid-container-2-right">
           <div>
-          <ChartComponent config={txnsGeneral} data = { data }/>
+          <ChartComponent config={proportions} data = { data }/>
 
           </div>
           <div>

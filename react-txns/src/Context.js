@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 
-const NUMDAYS = 15;
+const NUMDAYS = 30;
 const WINDOW = 30;
 const CAPITAL = 3000;
 var dateOptions = { year: '2-digit', month: 'numeric', day: 'numeric' };
@@ -41,12 +41,19 @@ export class Context extends Component {
     constructor() {
         super()
         this.state = {
+            proportions: {
+                labels: [],
+                datasets: [{
+                    data: [],
+                    backgroundColor: [],
+                }]
+            },
             ledger: [],
             history: {
                 labels: getFirstDates(WINDOW),
                 datasets: [ this.initNetWorth() ]
             },
-            active: ["0"],
+            active: [],
             data: {
                 labels: getFirstDates(WINDOW),
                 datasets: []
@@ -82,6 +89,7 @@ export class Context extends Component {
         newArray.push(endVal)
         return newArray;
     }
+
     initNetWorth() {
         return {
             label: 'Net Worth',
@@ -99,11 +107,15 @@ export class Context extends Component {
         if (txn.type == "debit") toPush = last-(+txn.amount)
         else if (txn.type=="neither") toPush = last
         else toPush = last+(+txn.amount)
-        hcData.push(toPush.toFixed(2))
+        hcData.push(toPush)
         // hcData[hcData.length-1] = hcData[hcData.length-1].toFixed(2)
         hcData.shift()
         hc[0].data = hcData
         return hc;
+    }
+    xMethod(a, s, p, txn) {
+
+        return p;
     }
     increment() {
         var colors = this.returnColors()
@@ -117,9 +129,13 @@ export class Context extends Component {
         ledgerCopy.push(newData);
 
         const datasetsCopy = s.data.datasets.slice(0);
+        var prosCopy = s.proportions.datasets.slice(0)
+        // console.log(proCopy)
 
         if (!a.includes(newData.title)) {
             a.push(newData.title)
+            prosCopy[0].data.push(+newData.amount)
+            prosCopy[0].backgroundColor.push(colors[newData.title])
 
             // increment all other categories w 0 spent
             datasetsCopy.forEach(function(val, i) {
@@ -137,9 +153,9 @@ export class Context extends Component {
                 backgroundColor: 'rgba(0, 0, 0, 0)',
             }
 
-            datasetsCopy.push(newCat)
+            datasetsCopy.push(newCat) }
 
-        } else {
+        else {
             datasetsCopy.forEach(function(val, i) {
                 var dataCopy = datasetsCopy[i].data.slice(0);
 
@@ -147,25 +163,25 @@ export class Context extends Component {
                 //to it, catch it
                 if (val.label===newData.title) {
                     dataCopy.push(newData.amount);
-                    console.log("adding expense to " + newData.title + " category")
+
+                    // increment appropriate place in donut dataset (w required copying)
+                    var j = a.indexOf(newData.title);
+                    var pro = prosCopy[0].data.slice(0);
+                    pro[j] = pro[j] + +newData.amount;
+                    prosCopy[0].data = pro;
                 }
                 //then increment all others w 0 spent
                 else { dataCopy.push(0); }
                 dataCopy.shift()
-                // console.log(dataCopy)
                 datasetsCopy[i].data = dataCopy;
             })
         }
 
-
-        // console.log(ledgerCopy)
-        // update the state object
-        // this.state.ledger = data;
-        // set the state
-        // this.setState({ ledger: ledgerCopy });
-
-
         this.setState({
+            proportions: Object.assign({}, s.proportions, {
+                datasets: prosCopy,
+                labels: a.slice(0)
+            }),
             data: Object.assign({}, s.data, {
                 datasets: datasetsCopy,
                 labels: labelsNew
@@ -193,6 +209,7 @@ export class Context extends Component {
         });
 
         cats[decision].times += 1;
+        console.log(cats)
         return makeTransaction(cats[decision], date)
     }
 
@@ -260,7 +277,7 @@ export class Context extends Component {
                 vendors: [
                     "Quacks 43rd St Bakery",
                     "Thunderbird Coffee",
-                    "Epoch North Loop",
+                    "Epoch Coffee North Loop",
                     "Flightpath Coffeehouse",
                     "Dolce Vita",
                     "Monkey Nest Coffee"
@@ -336,7 +353,7 @@ export class Context extends Component {
                 max: 10000,
                 type: 'neither'
             },
-            20: {
+            1: {
                 title: "income",
                 display: "Earn some income",
                 color: colors["income"],
