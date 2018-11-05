@@ -3,48 +3,59 @@ import Context from '../Context'
 import { Bar, Line, Pie, Doughnut } from 'react-chartjs-2';
 
 class Chart extends Component {
+    constructor(props) {
+        super()
+    }
     static defaultProps = {
         displayTitle: false,
         displayLegend: true,
         legendPosition: 'bottom',
-        titleSize: 25
+        titleSize: 25,
+        options: {
+            animation: {
+                duration: 0,
+            },
+            responsive: true,
+            maintainAspectRatio: false,
+            legend: {
+                labels : {usePointStyle: true},
+                display: true,
+                position: "right"
+            },
+        }
     }
 }
 
 export class LineChart extends Chart {
     constructor(props) {
         super()
-        // console.log(props)
+        // console.log(this)
     }
 
     render(){
-        if (this.props.type==="networth") {
-            var data = this.props.chartData.history
-        } else if (this.props.type==="donut") {
-            var data = this.props.chartData.proportions
-        } else {
-            var data = this.props.chartData.data
-        }
-      // console.log(this.props)
+      var data = this.props.chartData;
+      var lineOptions = JSON.parse(JSON.stringify(this.props.options))
+      lineOptions.legend.display = false;
+      lineOptions.tooltips = {
+          callbacks: {
+              label: function(tooltipItem, data) {
+                  var label = " ";
+                  label += data.datasets[tooltipItem.datasetIndex].label || '';
+                  label += ': $';
+                  label += Math.round(tooltipItem.yLabel * 100) / 100;
+                  return label;
+              }
+          }
+      };
+
+      // var options = this.defaultProps.
+      // this.props.options.legend.display = false;
       return(
         <div>
         <Line
               data = { data }
               height={200}
-              options={{
-                  type: 'line',
-                  animation: {
-                      duration: 0,
-                      display: 'linear'
-                  },
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  legend: {
-                      labels : {usePointStyle: true},
-                      display: false,
-                      position: this.props.legendPosition
-                  }
-              }}
+              options={lineOptions}
         />
         </div>
       )
@@ -53,35 +64,31 @@ export class LineChart extends Chart {
 export class DoughnutChart extends Chart {
     constructor(props) {
         super()
-        // console.log(props)
+        console.log(props)
     }
 
     render(){
-      if (this.props.type==="networth") {
-          var data = this.props.chartData.history
-      } else if (this.props.type==="donut") {
-          var data = this.props.chartData.proportions
-      } else {
-          var data = this.props.chartData.data
+      // this.props.options
+      var data = this.props.chartData;
+      var donutOptions = JSON.parse(JSON.stringify(this.props.options));
+      donutOptions.tooltips = {
+          callbacks: {
+              title: function(tooltipItem, data) {
+                  return data['labels'][tooltipItem[0]['index']];
+                },
+              label: function(tooltipItem, data) {
+                  console.log(tooltipItem)
+                  var label = data['datasets'][0]['data'][tooltipItem['index']]
+                  return " $" + Math.round(label*100)/100;
+              }
+          }
       }
-      // console.log(this.props)
       return(
         <div>
         <Doughnut
               data = { data }
               height={200}
-              options={{
-                  animation: {
-                      duration: 0,
-                  },
-                  responsive: true,
-                  maintainAspectRatio: false,
-                  legend: {
-                      labels : {usePointStyle: true},
-                      display: true,
-                      position: "right"
-                  }
-              }}
+              options={ donutOptions }
         />
         </div>
       )

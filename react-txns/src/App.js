@@ -45,13 +45,27 @@ class ChartComponent extends Component {
     makeComponent() {
         var type = this.props.config.type;
         var title = this.props.config.title;
-        console.log(title)
+        console.log(this.props)
         var total = [];
         total.push(<Header key={title+"_title"}  first={this.props.config.leftOfTitle} second={title}/>)
+
         if (type == "donut") {
-            total.push(<DoughnutChart key={title} chartData={this.props.data} type={this.props.config.type} />)
+            total.push(<DoughnutChart
+                key={title}
+                chartData={this.props.data.proportions}
+                />)
+
+        } else if (type == "networth") {
+            total.push(<LineChart
+                key={title}
+                chartData={this.props.data.history}
+                />)
+
         } else {
-            total.push(<LineChart key={title} chartData={this.props.data} type={this.props.config.type} />)
+            total.push(<LineChart
+                key={title}
+                chartData={this.props.data.data}
+                />)
         }
         console.log(this.props)
         return (total);

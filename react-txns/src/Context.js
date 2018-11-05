@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-const NUMDAYS = 30;
-const WINDOW = 30;
+const NUMDAYS = 20;
+const WINDOW = 20;
 const CAPITAL = 3000;
 var dateOptions = { year: '2-digit', month: 'numeric', day: 'numeric' };
 
