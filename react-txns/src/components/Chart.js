@@ -94,5 +94,42 @@ export class DoughnutChart extends Chart {
       )
     }
 }
+export class DoughnutChart extends Chart {
+    constructor(props) {
+        super()
+        // console.log(props)
+    }
+
+    render(){
+      if (this.props.type==="networth") {
+          var data = this.props.chartData.history
+      } else if (this.props.type==="donut") {
+          var data = this.props.chartData.proportions
+      } else {
+          var data = this.props.chartData.data
+      }
+      // console.log(this.props)
+      return(
+        <div>
+        <Doughnut
+              data = { data }
+              height={200}
+              options={{
+                  animation: {
+                      duration: 0,
+                  },
+                  responsive: true,
+                  maintainAspectRatio: false,
+                  legend: {
+                      labels : {usePointStyle: true},
+                      display: true,
+                      position: "right"
+                  }
+              }}
+        />
+        </div>
+      )
+    }
+}
 
 export default Chart;
